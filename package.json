@@ -9,8 +9,10 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "jquery": "^3.1.1",
     "mint-ui": "^2.0.5",
-    "vue": "^2.1.0"
+    "vue": "^2.1.0",
+    "zepto": "^1.2.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.4.0",

@@ -1,7 +1,5 @@
 <template>
-  <mt-picker :slots="slots" @change="onValuesChange">
-    
-  </mt-picker>
+  <mt-picker :slots="slots" @change="onValuesChange"></mt-picker>
 </template>
 
 <script>

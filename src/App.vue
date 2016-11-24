@@ -2,8 +2,8 @@
   <div id="app">
     <mt-header title="cp报名"></mt-header>
     <mt-popup v-model="enterVisible" class="enter-popup" position="right">
-      <div class="bg1"></div>
-      <div class="bg2" v-if="bg2Visible"></div>
+      <div class="bg1" v-show="!bg2Visible"></div>
+      <div class="bg2" v-show="bg2Visible"></div>
       <div class="foreword">
         <div class="words">
           <p>褪去都市的繁华</p>
@@ -27,10 +27,10 @@
       要认真填写哦~将用于审核和匹配，以及cp的第一次推送~
     </div>
     <div class="info">
-      <mt-field label="昵称" placeholder="cp看到的昵称" v-model="userinfo.alias"></mt-field>
+      <mt-field label="昵称" placeholder="cp看到的昵称" v-model="userinfo.alias" :attr="{autofocaus:true}"></mt-field>
       <mt-field label="微信" placeholder="等着TA来加你吧" v-model="userinfo.weichatId"></mt-field>
       <mt-field label="手机号" placeholder="或许，下期就是morning call" type="tel" v-model="userinfo.phonenumber"></mt-field>
-      <mt-field label="年龄" placeholder="很重要哦~" type="number" v-model="userinfo.age"></mt-field>
+      <mt-field label="年龄" placeholder="很重要哦~" type="number" :attr="{ min: 10,max:80 }" v-model="userinfo.age"></mt-field>
       <mt-field label="生日" placeholder="或许，你会遇到一个另一个你~" type="date" v-model="userinfo.birthday"></mt-field>
       <mt-radio align="right" title="性别" :options="options" v-model="userinfo.sex"></mt-radio>
 
@@ -38,6 +38,7 @@
         <mt-button v-if="!userinfo.city" size="small" @click="showCityPicker">选择</mt-button>
         <span v-if="!!userinfo.city" @click="showCityPicker">{{userinfo.province}}--{{userinfo.city}} ></span>
       </mt-cell>
+      <mt-field label="学校" placeholder="很重要哦~" v-model="userinfo.university"></mt-field>
       <mt-field label="自我介绍" placeholder="告诉TA，你就是颜色不一样的烟火" type="textarea" rows="4" v-model="userinfo.introduce"></mt-field>
       <mt-field label="致cp的话" placeholder="人生若只如初见。初次见面，却想告诉你——" type="textarea" rows="4" v-model="userinfo.wordsToCp"></mt-field>
 
@@ -51,20 +52,41 @@
     <div class="footer">
       <mt-button size="small" type="primary" class="-confirm" @click="applicate">确认报名</mt-button>
     </div>
+    <mt-popup v-model="successVisible" class="success-popup" position="right">
+      <div class="-p">恭喜你，报名成功！</div>
+      <div class="-img">
+      </div>
+      <div class="-p">Good Luck!</div>
+    </mt-popup>
   </div>
 </template>
 
 <script>
+import $ from 'jquery'
 import cityPicker from './components/cityPicker'
 import {provinces,citys} from './components/cityData'
+const debug=location.host=='localhost:8080'
+
 export default {
   name: 'app',
+  created(){
+    let o=this.getUrlParamObj()
+    if(!o['o']){
+      return
+    }
+    this.weixinInfo=JSON.parse(o['o'])
+    this.userinfo.nickname=this.weixinInfo.nickname
+    this.userinfo.headimgurl=this.weixinInfo.headimgurl
+    this.userinfo.openid=this.weixinInfo.openid
+  },
   data() {
     return {
       cityVisible: false,
       enterVisible: true,
       bg2Visible:false,
+      successVisible:false,
       butType:'default',
+      weixinInfo:{},
       bgStyle:{
         background: 'url(./assets/2.jpg)',
         backgroundSize: 'cover'
@@ -97,11 +119,13 @@ export default {
         }
       ],
       userinfo:{
+        openid: '',
         nickname:'',
         alias:'',
         headimgurl:'',
         weichatId:'',
         phonenumber:'',
+        university:'',
         age:0,
         birthday:'',
         sex:'0',
@@ -109,7 +133,6 @@ export default {
         city:citys[provinces[0]][0],
         introduce:'',
         wordsToCp:''
-
       }
     }
   },
@@ -121,7 +144,6 @@ export default {
       this.citySlots[2]['values'] = citys[values[0]]
       this.userinfo.province = values[0]
       this.userinfo.city = values[1]
-      console.log(values)
     },
     showCityPicker(){
       this.cityVisible=true
@@ -136,10 +158,87 @@ export default {
       this.bg2Visible=true
       setTimeout(() => {
         this.enterVisible=false
-      },600)
+      },800)
     },
     applicate(){
-      console.log(this.userinfo)
+      if (!debug) {
+        if (!this.userinfo.alias) {
+          alert('昵称不能为空！')
+          return
+        }
+        if (!this.userinfo.weichatId) {
+          alert('微信号不能为空！')
+          return
+        }
+        if (!this.userinfo.phonenumber || !/1[0-9]{10}/.test(this.userinfo.phonenumber)) {
+          alert('电话不能为空或不是11位数字！')
+          return
+        }
+        if (!this.userinfo.age) {
+          alert('年龄不能为空！')
+          return
+        }
+        if (this.userinfo.age < 10 || this.userinfo.age > 60) {
+          alert('年龄只能为10-60')
+          return
+        }
+        if (!this.userinfo.birthday) {
+          alert('生日不能为空！')
+          return
+        }
+        if (!this.userinfo.introduce) {
+          alert('自我介绍不能为空！')
+          return
+        }
+        if (this.userinfo.introduce.length > 100) {
+          alert('自我介绍不能超过100字！')
+          return
+        }
+        if (!this.userinfo.wordsToCp) {
+          alert('致cp的话不能为空！')
+          return
+        }
+        if (this.userinfo.wordsToCp.length > 100) {
+          alert('致cp的话不能超过100字！')
+          return
+        }
+      }
+      console.log(JSON.parse(JSON.stringify(this.userinfo)))
+      let url,dataType,type
+      if (debug) {
+        url="http://localhost/item/so_system/back_api/add_applicant.php"
+        dataType='jsonp'
+        type="GET"
+      }else{
+        url="http://item.redream.cn/so_system/back_api/add_applicant.php"
+        dataType='json'
+        type='POST'
+      }
+
+      $.ajax({
+        type,
+        url,
+        dataType,
+        data:JSON.parse(JSON.stringify(this.userinfo)),
+        success(data){
+          this.successVisible=true
+          console.log(data)
+        },
+        error(e){
+          console.error('send data fail!',e)
+        }
+      })
+      
+    },
+    getUrlParamObj() {
+      let str=location.search.substr(1)
+      let o={}
+      let strArr=str.split('&')
+      strArr.forEach((item) => {
+        item=item.split('=')
+        o[decodeURIComponent(item[0])]=decodeURIComponent(item[1])
+      })
+      return o
     }
   }
 }
@@ -167,16 +266,16 @@ export default {
     position: fixed;
     background: url(./assets/1.jpg);
     background-size: cover;
-    opacity: 0.6;
+    opacity: 0.9;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: -2;
 
   }
   .foreword{
     width: 80%;
     background-color: rgba(255,255,255,0.5);
-    margin:30px;
+    margin:30px auto;
     display: flex;
     align-items: center;
     /*justify-content: center;*/
@@ -222,7 +321,24 @@ export default {
   text-align: center;
   padding: 30px 0;
   .-confirm{
-    width: 80%;
+    width: 80%; 
   }
+}
+.success-popup{
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: column;
+  .-img{
+    background: url(./assets/3.jpg);
+    background-size: contain;
+    width: 100%;
+    height: 300px;
+    background-color: #444;
+  }
+
 }
 </style>
