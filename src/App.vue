@@ -66,12 +66,13 @@ import $ from 'jquery'
 import cityPicker from './components/cityPicker'
 import {provinces,citys} from './components/cityData'
 const debug=location.host=='localhost:8080'
-
+ 
 export default {
   name: 'app',
   created(){
     let o=this.getUrlParamObj()
     if(!o['o']){
+      location.href='https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx96bfa7c4e7c79526&redirect_uri=http%3A%2F%2Fitem.redream.cn%2Fcp_application%2Fphp%2Fgetinfo.php&response_type=code&scope=snsapi_userinfo&state=9#wechat_redirect'
       return
     }
     this.weixinInfo=JSON.parse(o['o'])
