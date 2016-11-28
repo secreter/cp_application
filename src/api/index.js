@@ -67,7 +67,7 @@ export function getItems(obj){
         	query:JSON.stringify(obj)
         },
         success(data){
-          console.log(data)
+          // console.log(data)
           resolve(data)
         },
         error(e){
@@ -78,3 +78,22 @@ export function getItems(obj){
 	})
 }
 
+export function addApplicants(obj){
+  return new Promise((resolve,reject) => {
+      $.ajax({
+        type,
+        url:domain + '/add_applicant.php',
+        dataType,
+        data:obj,
+        success(data){
+          console.log(data)
+          
+          resolve(data)
+        },
+        error(e){
+          console.error('send data to add_applicant fail!',e)
+          reject(e)
+        }
+      })
+  })
+}

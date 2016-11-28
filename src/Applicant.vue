@@ -5,41 +5,52 @@
       <div class="bg1" v-show="!bg2Visible"></div>
       <div class="bg2" v-show="bg2Visible"></div>
       <div class="foreword">
-        <div class="words">
-          <p>褪去都市的繁华</p>
-          <p>我们剩下的又还有什么呢</p>
-          <p>可怜我们习惯了街头的人来人往</p>
-          <p>还骗自己</p>
-          <p>TA会如约而至···</p>
+        <div class="words" v-if="current_status==1">
+          <p>于千万人之中遇见你所遇见的人</p>
+          <p>于千万年之中，时间的无涯的荒野里</p>
+          <p>没有早一步，也没有晚一步</p>
+          <p>刚巧赶上了</p>
+          <p>那也没有别的话可说，惟有轻轻的问一声</p>
+          <p>“噢，你也在这里吗？”</p>
         </div>
-        <div class="words">
-          <p>如果你愿意去感受这个世界</p>
-          <p>如果你希望去认真的了解另一个你</p>
-          <p>如果你希望尝试着关爱这个城市里的另一个人</p>
+        <div class="words" v-if="current_status==1">
+          <p>如果你愿意去用心感受这个世界</p>
+          <p>如果你愿意去认真的了解另一个你</p>
+          <p>如果你愿意尝试着关爱这个城市里的另一个人</p>
           <p>聆听TA的故事</p>
           <p>分享你的欢乐</p>
           <p>那么，我愿意帮助你找到TA</p>
         </div>
-        <mt-button size="small" :style="{opacity:0.7}" :type="butType" class="-confirm" @click="hideEnterPopup">我愿意并且我承诺</mt-button>
+        <mt-button size="small" :style="{opacity:0.7}" :type="butType" class="-confirm" @click="hideEnterPopup" v-if="current_status==1">我愿意并且我承诺</mt-button>
+        <div class="finishied" v-if="current_status==0">
+          永远热泪盈眶，永远满怀期待···
+          <br>
+          <br>
+          <br>
+          感谢你的参与~本次cp活动已经结束，请关注我们即将开始的下次活动~
+        </div>
       </div>
     </mt-popup>
     <div class="introduce">
       要认真填写哦~将用于审核和匹配，以及cp的第一次推送~
     </div>
     <div class="info">
-      <mt-field label="昵称" placeholder="cp看到的昵称" v-model="userinfo.alias" :attr="{autofocaus:true}"></mt-field>
-      <mt-field label="微信" placeholder="等着TA来加你吧" v-model="userinfo.weichatId"></mt-field>
-      <mt-field label="手机号" placeholder="或许，下期就是morning call" type="tel" v-model="userinfo.phonenumber"></mt-field>
-      <mt-field label="年龄" placeholder="很重要哦~" type="number" :attr="{ min: 10,max:80 }" v-model="userinfo.age"></mt-field>
-      <mt-field label="生日" placeholder="或许，你会遇到一个另一个你~" type="date" v-model="userinfo.birthday"></mt-field>
-      <mt-radio align="right" title="性别" :options="options" v-model="userinfo.sex"></mt-radio>
+      <mt-field label="昵称" placeholder="cp看到的昵称" v-model.trim="userinfo.alias" :attr="{autofocaus:true}"></mt-field>
+      <mt-field label="微信" placeholder="等着TA来加你吧" v-model.trim="userinfo.weichatId"></mt-field>
+      <mt-field label="手机号" placeholder="或许，下期就是morning call" type="tel" v-model.trim="userinfo.phonenumber"></mt-field>
+      <mt-field label="年龄" placeholder="很重要哦~" type="number" :attr="{ min: 10,max:80 }" v-model.trim="userinfo.age"></mt-field>
+      <mt-field label="生日" placeholder="或许，你会遇到一个另一个你~" type="date" v-model.trim="userinfo.birthday"></mt-field>
+      <mt-radio align="right" title="性别" :options="options" v-model.trim="userinfo.sex"></mt-radio>
 
       <mt-cell class="-city" title="城市">
         <mt-button v-if="!userinfo.city" size="small" @click="showCityPicker">选择</mt-button>
         <span v-if="!!userinfo.city" @click="showCityPicker">{{userinfo.province}}--{{userinfo.city}} ></span>
       </mt-cell>
-      <mt-field label="学校" placeholder="很重要哦~" v-model="userinfo.university"></mt-field>
-      <mt-field label="自我介绍" placeholder="告诉TA，你就是颜色不一样的烟火" type="textarea" rows="4" v-model="userinfo.introduce"></mt-field>
+      <mt-field label="学校" placeholder="很重要哦~" v-model.trim="userinfo.university"></mt-field>
+      <mt-cell title="上传图片" class="upload-input">
+        <input id="shareimg" type="file" name="">
+      </mt-cell>
+      <mt-field label="自我介绍" placeholder="告诉TA，你就是颜色不一样的烟火" type="textarea" rows="4" v-model.trim="userinfo.introduce"></mt-field>
       <mt-field label="致cp的话" placeholder="人生若只如初见。初次见面，却想告诉你——" type="textarea" rows="4" v-model="userinfo.wordsToCp"></mt-field>
 
     </div>
@@ -62,7 +73,7 @@
 </template>
 
 <script>
-import $ from 'jquery'
+import {addApplicants,getItems} from './api/index'
 import cityPicker from './components/cityPicker'
 import {provinces,citys} from './components/cityData'
 const debug=location.host=='localhost:8080'
@@ -79,6 +90,8 @@ export default {
     this.userinfo.nickname=this.weixinInfo.nickname
     this.userinfo.headimgurl=this.weixinInfo.headimgurl
     this.userinfo.openid=this.weixinInfo.openid
+
+    this.getActivityNum()
   },
   data() {
     return {
@@ -87,6 +100,7 @@ export default {
       bg2Visible:false,
       successVisible:false,
       butType:'default',
+      current_status:1,
       weixinInfo:{},
       bgStyle:{
         background: 'url(./assets/2.jpg)',
@@ -161,6 +175,36 @@ export default {
         this.enterVisible=false
       },800)
     },
+    getActivityNum(){
+      let obj={
+        table:'cp_activity_status',
+        field:{
+          current_status:'i',
+        },
+        condition:{
+          // activity_num:{
+          //   operate:'=',
+          //   type:'i',
+          //   value:'1'
+          // }
+        },
+        orderby:{
+          activity_num:-1
+        },
+        limit:{
+          from:0,
+          num:1,
+        }
+      }
+      getItems(obj)
+      .then(data => {
+        console.log(data.items[0].current_status)
+        this.current_status=data.items[0].current_status
+      })
+      .catch(e => {
+        console.log(e)
+      })
+    },
     applicate(){
       if (!debug) {
         if (!this.userinfo.alias) {
@@ -203,39 +247,19 @@ export default {
           alert('致cp的话不能超过100字！')
           return
         }
+        if (document.getElementById("shareimg").files.length==0) {
+          alert('请上传截图以便更多人参与进来哦')
+          return
+        }
       }
-      console.log(JSON.parse(JSON.stringify(this.userinfo)))
-      let url,dataType,type
-      if (debug) {
-        url="http://localhost/item/so_system/back_api/add_applicant.php"
-        dataType='jsonp'
-        type="GET"
-      }else{
-        url="http://item.redream.cn/so_system/back_api/add_applicant.php"
-        dataType='json'
-        type='POST'
-      }
-      let vm=this
-      $.ajax({
-        type,
-        url,
-        dataType,
-        data:JSON.parse(JSON.stringify(this.userinfo)),
-        success(data){
-          if (data.success) {
-            vm.successVisible=true
+      addApplicants(this.userinfo)
+      .then(data => {
+        if (data.success) {
+            this.successVisible=true
           }else{
             alert('每人每次只能报名一次哦~')
           }
-          
-          console.log(data)
-        },
-        error(e){
-          
-          console.error('send data fail!',e)
-        }
       })
-      
     },
     getUrlParamObj() {
       let str=location.search.substr(1)
@@ -292,6 +316,9 @@ export default {
       width: 100%;
       padding-bottom: 20px;
     }
+    .finishied{
+      padding: 100px 10px;
+    }
   }
 }
 .introduce{
@@ -347,5 +374,10 @@ export default {
     background-color: #444;
   }
 
+}
+.upload-input{
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
