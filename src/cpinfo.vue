@@ -3,10 +3,12 @@
     <div class="-box">
       <div class="-item">
         <div class="-title">
-          你亲爱的CP：
+          亲爱的CP：
         </div>
         <div class="-content">
-          HELLO，久等了~我是{{cpinfo.alias}}，很高兴遇到你！
+          HELLO，久等了~我是"{{cpinfo.alias}}"，很高兴在那么多人里如此遇到你！
+          不管我们是否在同一个城市，我都希望能在接下来的一周里彼此温暖，我把有趣的事情讲给你听，你有不开心的事也希望能找我诉说。毕竟我是个逗比可以逗你开心啊哈哈~
+          <p>我来自{{cpinfo.province}},{{cpinfo.city}},这是我的微信“{{cpinfo.weichat_id}}”,想知道更多啊？赶紧加我呀！</p>
         </div>
       </div>
       <div class="-item">
@@ -25,7 +27,9 @@
           {{cpinfo.words_to_cp}}
         </div>
       </div>
+      <a class="share" href="http://mp.weixin.qq.com/s?__biz=MzIzNjE4NDI5Nw==&mid=2650650195&idx=1&sn=7cd925d1ef4ef8df655af26558fe4b6e&chksm=f0d2a1d5c7a528c3b469be8be0630f342783c220abb4352ab9432ccb119956437bd4652d0313#rd">@南开一梦</a>
     </div>
+
   </div>
 </template>
 
@@ -65,12 +69,12 @@ export default {
           },
           condition:{
             id:{
-             opreate:'=',
+             operate:'=',
              type:'i',
              value:this.cp_id
             },
             activity_num:{
-              opreate:'=',
+              operate:'=',
               type:'i',
               value:this.activity_num
             }
@@ -78,6 +82,7 @@ export default {
         }
       getItems(obj)
       .then(data =>{
+        console.log(data)
         this.cpinfo=data.items[0]
       })
     }
@@ -115,13 +120,24 @@ export default {
       display: flex;
       flex-direction: column;
       color: #fff;
-      padding: 5px 0;
+      padding: 20px 0;
       .-title{
         padding: 5px 0;
       }
       .-content{
         text-indent: 2em;
+        text-align:justify;
+        p{
+          text-indent: 2em;
+          text-align:justify;
+        }
       }
+    }
+    .share{
+      color: #EEE;
+      display: block;
+      width: 100%;
+      text-align: center;
     }
   }
 }

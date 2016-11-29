@@ -39,7 +39,9 @@
       <mt-field label="微信" placeholder="等着TA来加你吧" v-model.trim="userinfo.weichatId"></mt-field>
       <mt-field label="手机号" placeholder="或许，下期就是morning call" type="tel" v-model.trim="userinfo.phonenumber"></mt-field>
       <mt-field label="年龄" placeholder="很重要哦~" type="number" :attr="{ min: 10,max:80 }" v-model.trim="userinfo.age"></mt-field>
-      <mt-field label="生日" placeholder="或许，你会遇到一个另一个你~" type="date" v-model.trim="userinfo.birthday"></mt-field>
+
+      <!-- <mt-field label="生日" placeholder="或许，你会遇到一个另一个你~" type="date" v-model.trim="userinfo.birthday"></mt-field> -->
+      
       <mt-radio align="right" title="性别" :options="options" v-model.trim="userinfo.sex"></mt-radio>
 
       <mt-cell class="-city" title="城市">
@@ -142,7 +144,7 @@ export default {
         phonenumber:'',
         university:'',
         age:0,
-        birthday:'',
+        // birthday:'',
         sex:'0',
         province: provinces[0],
         city:citys[provinces[0]][0],
@@ -227,10 +229,10 @@ export default {
           alert('年龄只能为10-60')
           return
         }
-        if (!this.userinfo.birthday) {
-          alert('生日不能为空！')
-          return
-        }
+        // if (!this.userinfo.birthday) {
+        //   alert('生日不能为空！')
+        //   return
+        // }
         if (!this.userinfo.introduce) {
           alert('自我介绍不能为空！')
           return
