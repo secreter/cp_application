@@ -14,12 +14,12 @@
           <p>“噢，你也在这里吗？”</p>
         </div>
         <div class="words" v-if="current_status==1">
-          <p>如果你愿意去用心感受这个世界</p>
-          <p>如果你愿意去认真的了解另一个你</p>
-          <p>如果你愿意尝试着关爱这个城市里的另一个人</p>
-          <p>聆听TA的故事</p>
-          <p>分享你的欢乐</p>
-          <p>那么，我愿意帮助你找到TA</p>
+          <p>人如果没有梦想</p>
+          <p>和咸鱼有什么分别呢？</p>
+          <p>无关输赢</p>
+          <p>但愿你满怀希望</p>
+          <p>你愿意与我相隔千里</p>
+          <p>聊聊我们心中最柔软的愿望吗？</p>
         </div>
         <mt-button size="small" :style="{opacity:0.7}" :type="butType" class="-confirm" @click="hideEnterPopup" v-if="current_status==1">我愿意并且我承诺</mt-button>
         <div class="finishied" v-if="current_status==0">
@@ -52,7 +52,7 @@
       <mt-cell title="上传图片" class="upload-input">
         <input id="shareimg" type="file" name="">
       </mt-cell>
-      <mt-field label="自我介绍" placeholder="告诉TA，你就是颜色不一样的烟火" type="textarea" rows="4" v-model.trim="userinfo.introduce"></mt-field>
+      <mt-field label="新年愿望" placeholder="与输赢无关，但愿你心中有愿望。" type="textarea" rows="4" v-model.trim="userinfo.introduce"></mt-field>
       <mt-field label="致cp的话" placeholder="人生若只如初见。初次见面，却想告诉你——" type="textarea" rows="4" v-model="userinfo.wordsToCp"></mt-field>
 
     </div>
